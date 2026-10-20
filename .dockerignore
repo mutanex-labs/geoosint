@@ -1,0 +1,15 @@
+.git
+.venv
+.cache
+__pycache__
+.pytest_cache
+.mypy_cache
+.ruff_cache
+data
+.env
+*.sqlite*
+tests
+docs
+scripts
+.test-tmp*
+pytest-cache-files-*

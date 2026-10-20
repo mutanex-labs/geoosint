@@ -1,0 +1,20 @@
+# Использовать вместе с compose.yaml только после настройки HTTPS reverse proxy.
+services:
+  geoosint:
+    network_mode: bridge
+    environment:
+      GEO_MODE: production
+      GEO_HOST: 0.0.0.0
+      GEO_PORT: 8787
+      BASE_URL: ${BASE_URL:?Укажите HTTPS origin}
+      GEO_OPERATOR_PASSWORD_HASH: ${GEO_OPERATOR_PASSWORD_HASH:?Укажите Argon2id hash}
+      GEO_REDIRECT_URIS: ${GEO_REDIRECT_URIS:?Укажите JSON список точных callback URI}
+      GEO_ORIGINS: ${GEO_ORIGINS:-[]}
+      GEO_OSM_ENABLED: ${GEO_OSM_ENABLED:-false}
+      GEO_OSM_USER_AGENT: ${GEO_OSM_USER_AGENT:-}
+      GEO_OVERPASS_ENDPOINT: ${GEO_OVERPASS_ENDPOINT:-https://overpass-api.de/api/interpreter}
+      GEO_MAX_UPLOAD_BYTES: ${GEO_MAX_UPLOAD_BYTES:-26214400}
+      GEO_MAX_ARTIFACTS_PER_CASE: ${GEO_MAX_ARTIFACTS_PER_CASE:-10}
+      GEO_BOUNDARIES_FILE: ${GEO_BOUNDARIES_FILE:-}
+    ports:
+      - "127.0.0.1:${GEO_PUBLISHED_PORT:-18787}:8787"

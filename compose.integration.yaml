@@ -1,0 +1,12 @@
+# Только отдельный локальный проект: -p geoosint-integration.
+# Входящих опубликованных портов нет; MCP вызывается из контейнера.
+services:
+  geoosint:
+    network_mode: bridge
+    environment:
+      GEO_OSM_ENABLED: "true"
+      GEO_OSM_USER_AGENT: "GeoOSINT/0.1 (single interactive acceptance test)"
+      GEO_OVERPASS_ENDPOINT: ${GEO_OVERPASS_ENDPOINT:-https://overpass-api.de/api/interpreter}
+      GEO_BOUNDARIES_FILE: /sources/registry.json
+    volumes:
+      - ./data-sources/osm-boundaries/registry.json:/sources/registry.json:ro

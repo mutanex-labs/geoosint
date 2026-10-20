@@ -1,0 +1,32 @@
+name: Проверки
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: 0.12.15
+          python-version: '3.12'
+      - run: uv sync --frozen
+      - run: uv run ruff check src tests scripts
+      - run: uv run ruff format --check src tests scripts
+      - run: uv run mypy
+      - run: uv run pytest -q
+      - run: uv export --frozen --no-dev --no-emit-project -o /tmp/geoosint-requirements.txt > /dev/null
+      - run: uv run pip-audit -r /tmp/geoosint-requirements.txt --no-deps --disable-pip
+      - run: docker compose config --quiet
+      - run: docker compose build
+      - run: docker compose up -d --wait
+      - run: docker compose exec -T geoosint geoosint --json doctor
+      - run: docker compose exec -T geoosint python - < scripts/container_smoke.py
+      - run: docker compose exec -T geoosint python - < scripts/oauth_container_smoke.py
+      - run: docker compose exec -T geoosint python - prepare < scripts/container_persistence.py
+      - run: docker compose restart geoosint
+      - run: docker compose up -d --wait
+      - run: docker compose exec -T geoosint python - verify-delete < scripts/container_persistence.py
+      - if: always()
+        run: docker compose down

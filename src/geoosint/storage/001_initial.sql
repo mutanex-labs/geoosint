@@ -1,0 +1,20 @@
+PRAGMA foreign_keys=ON;
+CREATE TABLE IF NOT EXISTS schema_version(version INTEGER PRIMARY KEY);
+INSERT OR IGNORE INTO schema_version VALUES(1);
+CREATE TABLE IF NOT EXISTS users(id TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS cases(
+ id TEXT PRIMARY KEY, owner TEXT NOT NULL REFERENCES users(id), revision INTEGER NOT NULL,
+ state TEXT NOT NULL, created_at TEXT NOT NULL, document TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS cases_owner ON cases(owner);
+CREATE TABLE IF NOT EXISTS events(
+ id INTEGER PRIMARY KEY, case_id TEXT NOT NULL REFERENCES cases(id) ON DELETE CASCADE,
+ owner TEXT NOT NULL, revision INTEGER NOT NULL, created_at TEXT NOT NULL,
+ operation TEXT NOT NULL, content_hash TEXT NOT NULL, previous_hash TEXT NOT NULL,
+ event_hash TEXT NOT NULL, UNIQUE(case_id, revision));
+CREATE TABLE IF NOT EXISTS idempotency(
+ owner TEXT NOT NULL, key TEXT NOT NULL, request_hash TEXT NOT NULL,
+ case_id TEXT REFERENCES cases(id) ON DELETE CASCADE, response TEXT NOT NULL,
+ PRIMARY KEY(owner,key));
+CREATE TABLE IF NOT EXISTS cache(
+ key TEXT PRIMARY KEY, created REAL NOT NULL, expires REAL NOT NULL,
+ source TEXT NOT NULL, status TEXT NOT NULL, checksum TEXT NOT NULL, value TEXT NOT NULL);

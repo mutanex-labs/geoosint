@@ -1,0 +1,9 @@
+ALTER TABLE cases ADD COLUMN scope_revision INTEGER NOT NULL DEFAULT 0;
+CREATE TABLE IF NOT EXISTS search_usage(
+ case_id TEXT PRIMARY KEY REFERENCES cases(id) ON DELETE CASCADE,
+ owner TEXT NOT NULL, tool_calls INTEGER NOT NULL DEFAULT 0,
+ provider_requests INTEGER NOT NULL DEFAULT 0, external_requests INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE IF NOT EXISTS scope_events(
+ id TEXT PRIMARY KEY, case_id TEXT NOT NULL REFERENCES cases(id) ON DELETE CASCADE,
+ owner TEXT NOT NULL, created_at TEXT NOT NULL, scope_revision INTEGER NOT NULL, content TEXT NOT NULL);
+UPDATE schema_version SET version=2 WHERE version=1;
